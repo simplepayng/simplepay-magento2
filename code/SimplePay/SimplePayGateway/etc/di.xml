@@ -1,0 +1,43 @@
+<?xml version="1.0"?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <!-- Payment Method Facade configuration -->
+    <virtualType name="SimplePayGatewayFacade" type="Magento\Payment\Model\Method\Adapter">
+        <arguments>
+            <argument name="code" xsi:type="const">\SimplePay\SimplePayGateway\Model\Ui\ConfigProvider::CODE</argument>
+            <argument name="formBlockType" xsi:type="string">Magento\Payment\Block\Form</argument>
+            <argument name="infoBlockType" xsi:type="string">SimplePay\SimplePayGateway\Block\Info</argument>
+            <argument name="valueHandlerPool" xsi:type="object">SimplePayGatewayValueHandlerPool</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Configuration reader -->
+    <virtualType name="SimplePayGatewayConfig" type="Magento\Payment\Gateway\Config\Config">
+        <arguments>
+            <argument name="methodCode" xsi:type="const">\SimplePay\SimplePayGateway\Model\Ui\ConfigProvider::CODE</argument>
+        </arguments>
+    </virtualType>
+
+    <!-- Value handlers infrastructure -->
+    <virtualType name="SimplePayGatewayValueHandlerPool" type="Magento\Payment\Gateway\Config\ValueHandlerPool">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="default" xsi:type="string">SimplePayGatewayConfigValueHandler</item>
+            </argument>
+        </arguments>
+    </virtualType>
+    <virtualType name="SimplePayGatewayConfigValueHandler" type="Magento\Payment\Gateway\Config\ConfigValueHandler">
+        <arguments>
+            <argument name="configInterface" xsi:type="object">SimplePayGatewayConfig</argument>
+        </arguments>
+    </virtualType>
+
+    <type name="SimplePay\SimplePayGateway\Block\Info">
+        <arguments>
+            <argument name="config" xsi:type="object">SimplePayGatewayConfig</argument>
+        </arguments>
+    </type>
+
+    <!-- API -->
+    <preference for="SimplePay\SimplePayGateway\Api\PaymentInterface" type="SimplePay\SimplePayGateway\Model\Payment"/>
+</config>

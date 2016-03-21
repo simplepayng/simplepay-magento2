@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Store:etc/config.xsd">
+    <default>
+        <payment>
+            <simplepay_gateway>
+                <debug>1</debug>
+                <active>0</active>
+                <model>SimplePayGatewayFacade</model>
+                <title>SimplePay</title>
+                <currency>NGN</currency>
+                <can_use_checkout>1</can_use_checkout>
+                <is_gateway>1</is_gateway>
+                <sort_order>1</sort_order>
+            </simplepay_gateway>
+        </payment>
+    </default>
+</config>
