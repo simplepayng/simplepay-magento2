@@ -1,5 +1,6 @@
 /*browser:true*/
 /*global define*/
+
 define(
     [
         'jquery',
@@ -7,9 +8,10 @@ define(
         'Magento_Checkout/js/action/place-order',
         'Magento_Checkout/js/model/payment/additional-validators',
         'Magento_Checkout/js/model/quote',
-        'Magento_Checkout/js/model/full-screen-loader'
+        'Magento_Checkout/js/model/full-screen-loader',
+        'Magento_Checkout/js/action/redirect-on-success'
     ],
-    function ($, Component, placeOrderAction, additionalValidators, quote, fullScreenLoader) {
+    function ($, Component, placeOrderAction, additionalValidators, quote, fullScreenLoader, redirectOnSuccessAction) {
         'use strict';
 
         return Component.extend({
@@ -17,6 +19,8 @@ define(
                 template: 'SimplePay_SimplePayGateway/payment/form',
                 customObserverName: null
             },
+
+            redirectAfterPlaceOrder: true,
 
             initialize: function () {
                 this._super();
@@ -41,11 +45,12 @@ define(
             /**
              * @override
              */
+
             placeOrder: function () {
                 var checkoutConfig = window.checkoutConfig;
                 var paymentData = quote.billingAddress();
                 var simplePayConfiguration = checkoutConfig.payment.simplepay_gateway;
-
+                
                 if (checkoutConfig.isCustomerLoggedIn) {
                     var customerData = checkoutConfig.customerData;
                     paymentData.email = customerData.email;
@@ -58,15 +63,14 @@ define(
                 var _this = this;
                 var handler = SimplePay.configure({
                     token: function (token) {
+
                         $.ajax({
                             method: 'GET',
-                            url: simplePayConfiguration.api_url + 'simplepay/verify',
-                            data: {
-                                token: token
-                            }
+                            url: simplePayConfiguration.api_url + 'simplepay/verify/'+token,
                         }).success(function () {
-                            fullScreenLoader.startLoader();
+                            
                             _this.processPayment();
+
                         });
                     },
                     key: simplePayConfiguration.public_key,
@@ -92,17 +96,28 @@ define(
 
                 if (this.validate() && additionalValidators.validate()) {
                     this.isPlaceOrderActionAllowed(false);
-                    placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
-
+                    //placeOrder = placeOrderAction(this.getData(), this.redirectAfterPlaceOrder, this.messageContainer);
+                    placeOrder = placeOrderAction(this.getData(), this.messageContainer);
                     $.when(placeOrder).fail(function () {
                         self.isPlaceOrderActionAllowed(true);
-                    }).done(this.afterPlaceOrder.bind(this));
+                    }).done(
+                        function () {
+                            self.afterPlaceOrder();
+
+                            if (self.redirectAfterPlaceOrder) {
+                                redirectOnSuccessAction.execute();
+                            }
+                        }
+                    );
 
                     return true;
-                }
+                } 
+                
+
                 return false;
             },
 
+            
             /**
              *  SimplePay Gateway functions
              */

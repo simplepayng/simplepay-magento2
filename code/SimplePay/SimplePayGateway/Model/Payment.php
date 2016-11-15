@@ -21,11 +21,12 @@ class Payment implements \SimplePay\SimplePayGateway\Api\PaymentInterface
      */
     public function verifyPayment($token)
     {
-        $privateKey = $this->config->getConfigData('live_public_api_key');
+        $privateKey = $this->config->getConfigData('live_private_api_key');
         if ($this->config->getConfigData('test_mode')) {
-            $privateKey = $this->config->getConfigData('test_public_api_key');
-        }
+            $privateKey = $this->config->getConfigData('test_private_api_key');
+        } 
 
+        
         $data = array(
             'token' => $token
         );
@@ -58,6 +59,7 @@ class Payment implements \SimplePay\SimplePayGateway\Api\PaymentInterface
             return true;
 
         }
+        
         return false;
     }
 }
